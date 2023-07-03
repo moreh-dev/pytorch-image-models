@@ -30,4 +30,4 @@ parallel -j $NUM_SDA --link \
 rm -rf $tmp_dir
 
 wait $(jobs -n)
-[[ -z $(pgrep mlflow) ]] && pkill -f mlflow
+[[ ! -z $(pgrep mlflow) ]] && pkill -f mlflow
