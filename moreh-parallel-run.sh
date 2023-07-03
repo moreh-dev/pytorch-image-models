@@ -5,7 +5,7 @@
 NUM_SDA=5
 
 # Require GNU parallel
-[[ -x $(command -v parallel) ]] \
+[[ ! -x $(command -v parallel) ]] \
     && echo "Require GNU parallel. To install: sudo apt install parallel" \
     && exit 1
 
