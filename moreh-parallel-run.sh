@@ -15,8 +15,9 @@ input_file=$1
 tmp_dir=$(mktemp --directory)
 
 num_models=$(wc -l $input_file | cut -d" " -f1)
+[[ $num_models -lt $NUM_SDA ]] \
+    && echo Too few models: ${num_models} on ${NUM_SDA} && exit 1
 
-# TODO: what happens if num_models < NUM_SDA? how to handle that case?
 num_models_per_sda=$(((num_models + NUM_SDA - 1) / NUM_SDA))
 
 split --lines=$num_models_per_sda $input_file ${tmp_dir}/timm.
