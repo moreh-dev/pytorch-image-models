@@ -38,6 +38,8 @@ from timm.optim import create_optimizer_v2, optimizer_kwargs
 from timm.scheduler import create_scheduler_v2, scheduler_kwargs
 from timm.utils import ApexScaler, NativeScaler
 
+torch.multiprocessing.set_sharing_strategy('file_system')
+
 try:
     from apex import amp
     from apex.parallel import DistributedDataParallel as ApexDDP
