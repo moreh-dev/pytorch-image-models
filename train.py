@@ -367,6 +367,13 @@ group.add_argument('--use-multi-epochs-loader', action='store_true', default=Fal
 group.add_argument('--log-wandb', action='store_true', default=False,
                    help='log training and validation metrics to wandb')
 
+def get_num_parameters(model):
+  num_params = 0
+  for param in model.parameters():
+    num_params += param.numel()
+  # in million
+  num_params /= 10**6
+  return num_params
 
 def _parse_args():
     # Do we have a config file to parse?
@@ -789,6 +796,9 @@ def main():
     try:
         if has_mlflow:
             mlflow.start_run(experiment_id=experiment_id, run_name=run_name)
+            # Log total number of parameters of this model in the million unit.
+            num_params = get_num_parameters(model)
+            mlflow.log_param('num_params', num_params)
         for epoch in range(start_epoch, num_epochs):
             if hasattr(dataset_train, 'set_epoch'):
                 dataset_train.set_epoch(epoch)
