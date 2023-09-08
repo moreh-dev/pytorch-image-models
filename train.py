@@ -368,12 +368,8 @@ group.add_argument('--log-wandb', action='store_true', default=False,
                    help='log training and validation metrics to wandb')
 
 def get_num_parameters(model):
-  num_params = 0
-  for param in model.parameters():
-    num_params += param.numel()
-  # in million
-  num_params /= 10**6
-  return num_params
+    # return number of params of a model, in million
+    return sum(m.numel() for m in model.parameters()) / 10**6
 
 def _parse_args():
     # Do we have a config file to parse?
@@ -468,9 +464,10 @@ def main():
     if args.grad_checkpointing:
         model.set_grad_checkpointing(enable=True)
 
+    param_count = get_num_parameters(model)
     if utils.is_primary(args):
         _logger.info(
-            f'Model {safe_model_name(args.model)} created, param count:{sum([m.numel() for m in model.parameters()])}')
+                f'Model {safe_model_name(args.model)} created, param count:{param_count:.2f}M')
 
     data_config = resolve_data_config(vars(args), model=model, verbose=utils.is_primary(args))
 
@@ -798,7 +795,7 @@ def main():
             mlflow.start_run(experiment_id=experiment_id, run_name=run_name)
             # Log total number of parameters of this model in the million unit.
             num_params = get_num_parameters(model)
-            mlflow.log_param('num_params', num_params)
+            mlflow.log_param('num_params', param_count)
         for epoch in range(start_epoch, num_epochs):
             if hasattr(dataset_train, 'set_epoch'):
                 dataset_train.set_epoch(epoch)
