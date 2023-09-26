@@ -794,7 +794,6 @@ def main():
         if has_mlflow:
             mlflow.start_run(experiment_id=experiment_id, run_name=run_name)
             # Log total number of parameters of this model in the million unit.
-            num_params = get_num_parameters(model)
             mlflow.log_param('num_params', param_count)
         for epoch in range(start_epoch, num_epochs):
             if hasattr(dataset_train, 'set_epoch'):
