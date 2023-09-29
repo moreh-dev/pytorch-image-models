@@ -794,7 +794,6 @@ def main():
         if has_mlflow:
             mlflow.start_run(experiment_id=experiment_id, run_name=run_name)
             # Log total number of parameters of this model in the million unit.
-            num_params = get_num_parameters(model)
             mlflow.log_param('num_params', param_count)
         for epoch in range(start_epoch, num_epochs):
             if hasattr(dataset_train, 'set_epoch'):
@@ -1016,6 +1015,7 @@ def train_one_epoch(
                     mlflow.log_metric('loss', losses_m.val, step=update_idx)
                     mlflow.log_metric('throughput', update_sample_count / update_time_m.val, step=update_idx)
                     mlflow.log_metric('lr', lr, step=update_idx)
+                    mlflow.log_metric('one_epoch_time', update_time_m.val * len(loader))
 
                 if args.save_images and output_dir:
                     torchvision.utils.save_image(
