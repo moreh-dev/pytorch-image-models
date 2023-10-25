@@ -78,9 +78,12 @@ except ImportError:
 
 _logger = logging.getLogger('train')
 
-# Fix error: `torch.storage.TypedStorage` has no attribute `_new_shared_fd_cpu`
-if torch.__version__.startswith('1.13.1+cu116.moreh'):
+if 'moreh' in torch.__version__:
+    # Fix error: `torch.storage.TypedStorage` has no attribute `_new_shared_fd_cpu`
     torch.multiprocessing.set_sharing_strategy('file_system')
+
+    # MAF already support BF16 in AMD GPU, so bypass the check
+    torch.cuda.is_bf16_supported = lambda: True
 
 # The first arg parser parses out only the --config argument, this argument is used to
 # load a yaml file containing key-values that override the defaults for the main parser below
