@@ -44,7 +44,14 @@ try:
     from apex.parallel import convert_syncbn_model
     has_apex = True
 except ImportError:
-    has_apex = False
+    if 'moreh' not in torch.__version__:
+        has_apex = False
+    else:
+        apex = torch.moreh.apex
+        amp = apex.amp
+        ApexDDP = apex.parallel.DistributedDataParallel
+        convert_syncbn_model = apex.parallel.convert_syncbn_model
+        has_apex = True
 
 has_native_amp = False
 try:
