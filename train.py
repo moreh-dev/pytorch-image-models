@@ -355,6 +355,8 @@ group.add_argument('--amp-dtype', default='float16', type=str,
                    help='lower precision AMP dtype (default: float16)')
 group.add_argument('--amp-impl', default='native', type=str,
                    help='AMP impl to use, "native" or "apex" (default: native)')
+group.add_argument('--amp-opt-level', default='O1', type=str,
+                   help="Apex AMP optimization level. One of ('O0', 'O1', 'O2', 'O3')")
 group.add_argument('--no-ddp-bb', action='store_true', default=False,
                    help='Force broadcast buffers for native DDP to off.')
 group.add_argument('--synchronize-step', action='store_true', default=False,
@@ -425,6 +427,7 @@ def main():
             assert has_apex, 'AMP impl specified as APEX but APEX is not installed.'
             use_amp = 'apex'
             assert args.amp_dtype == 'float16'
+            assert args.amp_opt_level in ('O0', 'O1', 'O2', 'O3')
         else:
             assert has_native_amp, 'Please update PyTorch to a version with native AMP (or use APEX).'
             use_amp = 'native'
@@ -543,7 +546,7 @@ def main():
     loss_scaler = None
     if use_amp == 'apex':
         assert device.type == 'cuda'
-        model, optimizer = amp.initialize(model, optimizer, opt_level='O1')
+        model, optimizer = amp.initialize(model, optimizer, opt_level=args.amp_opt_level)
         loss_scaler = ApexScaler()
         if utils.is_primary(args):
             _logger.info('Using NVIDIA APEX AMP. Training in mixed precision.')
