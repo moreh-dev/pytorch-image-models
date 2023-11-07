@@ -255,15 +255,7 @@ def create_optimizer_v2(
             from apex.optimizers import FusedNovoGrad, FusedAdam, FusedLAMB, FusedSGD
             has_apex = True
         except ImportError:
-            if 'moreh' not in torch.__version__:
-                has_apex = False
-            else:
-                apex = torch.moreh.apex
-                FusedNovoGrad = apex.optimizers.FusedNovoGrad
-                FusedAdam = apex.optimizers.FusedAdam
-                FusedLAMB = apex.optimizers.FusedLAMB
-                FusedSGD = apex.optimizers.FusedSGD
-                has_apex = True
+            has_apex = False
         assert has_apex and torch.cuda.is_available(), 'APEX and CUDA required for fused optimizers'
 
     if opt_lower.startswith('bnb'):
@@ -298,7 +290,7 @@ def create_optimizer_v2(
 
     # adaptive
     elif opt_lower == 'adam':
-        optimizer = optim.Adam(parameters, **opt_args)
+        optimizer = optim.Adam(parameters, **opt_args) 
     elif opt_lower == 'adamw':
         optimizer = optim.AdamW(parameters, **opt_args)
     elif opt_lower == 'adamp':
