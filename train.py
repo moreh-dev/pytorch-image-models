@@ -51,6 +51,10 @@ except ImportError:
         amp = apex.amp
         ApexDDP = apex.parallel.DistributedDataParallel
         convert_syncbn_model = apex.parallel.convert_syncbn_model
+
+        # Monkey-patch the module `timm.utils.cuda`
+        utils.cuda.amp = apex.amp
+
         has_apex = True
 
 has_native_amp = False
