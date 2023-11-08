@@ -8,12 +8,8 @@ try:
     from apex import amp
     has_apex = True
 except ImportError:
-    if 'moreh' not in torch.__version__:
-        amp = None
-        has_apex = False
-    else:
-        amp = torch.moreh.apex.amp
-        has_apex = True
+    amp = None
+    has_apex = False
 
 from .clip_grad import dispatch_clip_grad
 
