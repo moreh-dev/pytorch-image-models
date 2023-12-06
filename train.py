@@ -1131,8 +1131,10 @@ def validate(
                 )
                 if has_mlflow:
                     mlflow.log_metric('val_loss', losses_m.val)
-                    mlflow.log_metric('val_acc_top1', top1_m.val)
-                    mlflow.log_metric('val_acc_top5', top5_m.val)
+
+        if has_mlflow:
+            mlflow.log_metric('val_acc_top1', top1_m.avg)
+            mlflow.log_metric('val_acc_top5', top5_m.avg)
 
     # NOTE: this throughput calculation does not take distributed training into
     # account
