@@ -44,7 +44,7 @@ try:
     from apex.parallel import convert_syncbn_model
     has_apex = True
 except ImportError:
-    if 'moreh' not in torch.__version__:
+    if not hasattr(torch, 'moreh'):
         has_apex = False
     else:
         apex = torch.moreh.apex
@@ -89,11 +89,11 @@ except ImportError:
 
 _logger = logging.getLogger('train')
 
-if 'moreh' in torch.__version__:
+if hasattr(torch, 'moreh'):
     # Fix error: `torch.storage.TypedStorage` has no attribute `_new_shared_fd_cpu`
     torch.multiprocessing.set_sharing_strategy('file_system')
 
-    # MAF already support BF16 in AMD GPU, so bypass the check
+    # MAF support BF16 in backend, so bypass the check
     torch.cuda.is_bf16_supported = lambda: True
 
 # The first arg parser parses out only the --config argument, this argument is used to
