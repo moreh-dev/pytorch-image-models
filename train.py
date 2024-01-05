@@ -44,7 +44,7 @@ try:
     from apex.parallel import convert_syncbn_model
     has_apex = True
 except ImportError:
-    if 'moreh' not in torch.__version__:
+    if not hasattr(torch, 'moreh'):
         has_apex = False
     else:
         apex = torch.moreh.apex
