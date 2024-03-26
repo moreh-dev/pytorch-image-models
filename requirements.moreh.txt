@@ -1,0 +1,4 @@
+# No torch dependencies, since torch should be installed by Moreh
+pyyaml
+huggingface_hub
+safetensors>=0.2
