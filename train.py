@@ -79,9 +79,6 @@ except ImportError:
 _logger = logging.getLogger('train')
 
 if hasattr(torch, 'moreh'):
-    # Fix error: `torch.storage.TypedStorage` has no attribute `_new_shared_fd_cpu`
-    torch.multiprocessing.set_sharing_strategy('file_system')
-
     # MAF support BF16 in backend, so bypass the check
     torch.cuda.is_bf16_supported = lambda: True
 
