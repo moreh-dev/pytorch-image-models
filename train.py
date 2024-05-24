@@ -44,18 +44,7 @@ try:
     from apex.parallel import convert_syncbn_model
     has_apex = True
 except ImportError:
-    if not hasattr(torch, 'moreh'):
-        has_apex = False
-    else:
-        apex = torch.moreh.apex
-        amp = apex.amp
-        ApexDDP = apex.parallel.DistributedDataParallel
-        convert_syncbn_model = apex.parallel.convert_syncbn_model
-
-        # Monkey-patch the module `timm.utils.cuda`
-        utils.cuda.amp = apex.amp
-
-        has_apex = True
+    has_apex = False
 
 has_native_amp = False
 try:
@@ -90,9 +79,6 @@ except ImportError:
 _logger = logging.getLogger('train')
 
 if hasattr(torch, 'moreh'):
-    # Fix error: `torch.storage.TypedStorage` has no attribute `_new_shared_fd_cpu`
-    torch.multiprocessing.set_sharing_strategy('file_system')
-
     # MAF support BF16 in backend, so bypass the check
     torch.cuda.is_bf16_supported = lambda: True
 
@@ -359,8 +345,6 @@ group.add_argument('--amp-dtype', default='float16', type=str,
                    help='lower precision AMP dtype (default: float16)')
 group.add_argument('--amp-impl', default='native', type=str,
                    help='AMP impl to use, "native" or "apex" (default: native)')
-group.add_argument('--amp-opt-level', default='O1', type=str,
-                   help="Apex AMP optimization level. One of ('O0', 'O1', 'O2', 'O3')")
 group.add_argument('--no-ddp-bb', action='store_true', default=False,
                    help='Force broadcast buffers for native DDP to off.')
 group.add_argument('--synchronize-step', action='store_true', default=False,
@@ -431,7 +415,6 @@ def main():
             assert has_apex, 'AMP impl specified as APEX but APEX is not installed.'
             use_amp = 'apex'
             assert args.amp_dtype == 'float16'
-            assert args.amp_opt_level in ('O0', 'O1', 'O2', 'O3')
         else:
             assert has_native_amp, 'Please update PyTorch to a version with native AMP (or use APEX).'
             use_amp = 'native'
@@ -550,7 +533,7 @@ def main():
     loss_scaler = None
     if use_amp == 'apex':
         assert device.type == 'cuda'
-        model, optimizer = amp.initialize(model, optimizer, opt_level=args.amp_opt_level)
+        model, optimizer = amp.initialize(model, optimizer, opt_level='O1')
         loss_scaler = ApexScaler()
         if utils.is_primary(args):
             _logger.info('Using NVIDIA APEX AMP. Training in mixed precision.')
